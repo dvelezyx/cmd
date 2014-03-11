@@ -9,6 +9,7 @@ set CONFIG=%2
 set BUILDMODE=%3
 set CVSPATH=%4
 set MYSOLUTION=%5
+set ACTIONS=INIT BUILD
 
 set tasklist=%windir%\System32\tasklist.exe
 set procName=vsmsvr.exe
@@ -25,8 +26,7 @@ set FORSRV=_forsrvr.sln
 set PROZSRV=_prozsrv.sln
 set ETAT=ETAT.sln
 
-set SOLUTIONS=%CVSPATH%\vc\Coseu\%L2DBI% %CVSPATH%\vc\Coseu\%BATCHLIB% %CVSPATH%\vc\Suppl\%SUPPL32% 
-set SOLUTIONS=%SOLUTIONS% %CVSPATH%\vc\Coseu\%COSEU% 
+set SOLUTIONS=%CVSPATH%\vc\Coseu\%L2DBI% %CVSPATH%\vc\Coseu\%BATCHLIB% %CVSPATH%\vc\Suppl\%SUPPL32% %CVSPATH%\vc\Coseu\%COSEU% 
 REM set SOLUTIONS=%SOLUTIONS% %CVSPATH%\vc\L2001\LOGAABR\%LOGAPGM%
 REM set SOLUTIONS=%SOLUTIONS% %CVSPATH%\vc\L2001\EXITS\%L2USERX%
 set SOLUTIONS=%SOLUTIONS% %CVSPATH%\vc\L2001\Forsrvr\%FORSRV%
@@ -38,34 +38,45 @@ ECHO CONFIG:     %CONFIG%
 ECHO BUILDMODE:  %BUILDMODE%
 ECHO CVSPATH:    %CVSPATH%
 ECHO MYSOLUTION: %MYSOLUTION%
-
-IF "%MODE%MACROS"=="INITMACROS" (
- ECHO "INITMACROS..."
-)
- 
 PAUSE
 
 IF NOT "COMPILE%MYSOLUTION%"=="COMPILE" set SOLUTIONS=%MYSOLUTION%
+
+IF "%MODE%MACROS"=="INITMACROS" (
+
+ FOR %%S IN (%SOLUTIONS%) DO (
+
+  PUSHD %%~dpS
+
+  @echo Processing... %%~nxS in %%~dpS
+  REM START "" /D "%%~dpS" /WAIT 
+  %DEVENV% %%~nxS /command %RUNMACRO%
+  REM START "" /D "%%~dpS" /WAIT %DEVENV% %%~nxS /command %RUNMACRO%
+  REM START /WAIT v:\CVS\HEAD\Mod_\Lvl0\src\win32\vc\Coseu\batchlib.sln /command %RUNMACRO%
+  POPD
+ 
+ ) 
+
+
+:CHECK_STARTED
+"%windir%\system32\timeout.exe" /T 4 /NOBREAK
+%tasklist% | find /C "%procName%"
+if %ERRORLEVEL%==1 GOTO:CHECK_STARTED
+
+:CHECK_FINISHED
+"%windir%\system32\timeout.exe" /T 8 /NOBREAK
+%tasklist% | find /C "%procName%"
+if %ERRORLEVEL%==0 GOTO:CHECK_FINISHED
+
+)
+
+REM PAUSE
 
 FOR %%S IN (%SOLUTIONS%) DO (
 
  PUSHD %%~dpS
 
  @echo Processing... %%~nxS in %%~dpS
-
- IF "%MODE%MACROS"=="INITMACROS" (
-  %DEVENV% %%~nxS /command "%RUNMACRO%"
-  PAUSE
-  REM :CHECK_STARTED
-  REM "%windir%\system32\timeout.exe" /T 4 /NOBREAK
-  REM %tasklist% | find /C "%procName%"
-  REM if %ERRORLEVEL%==1 GOTO:CHECK_STARTED
-  REM
-  REM :CHECK_FINISHED
-  REM "%windir%\system32\timeout.exe" /T 8 /NOBREAK
-  REM %tasklist% | find /C "%procName%"
-  REM if %ERRORLEVEL%==0 GOTO:CHECK_FINISHED
- )
 
  IF "%MODE%ALL"=="TESTALL" (
   @echo %%~nxS
