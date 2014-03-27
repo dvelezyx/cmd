@@ -10,6 +10,8 @@ set BUILDMODE=%3
 set CVSPATH=%4
 set MYSOLUTION=%5
 set ACTIONS=INIT BUILD
+set LOGPATH=%CVSPATH%\log
+set LOGFILE=%LOGPATH%\BuildLog.htm
 
 set tasklist=%windir%\System32\tasklist.exe
 set procName=vsmsvr.exe
@@ -37,8 +39,14 @@ ECHO MODE:       %MODE%
 ECHO CONFIG:     %CONFIG%
 ECHO BUILDMODE:  %BUILDMODE%
 ECHO CVSPATH:    %CVSPATH%
+ECHO LOGFILE:    %LOGFILE%
 ECHO MYSOLUTION: %MYSOLUTION%
 PAUSE
+
+REM CREAR LOGPATH
+MKDIR %LOGPATH%
+REM BORRAR BUILDLOG
+DEL %LOGFILE%
 
 IF NOT "COMPILE%MYSOLUTION%"=="COMPILE" set SOLUTIONS=%MYSOLUTION%
 
@@ -85,29 +93,29 @@ FOR %%S IN (%SOLUTIONS%) DO (
    %DEVENV% %%~nxS /clean %CONFIG%
   ) ELSE (
    IF "%%~nxS"=="%SUPPL32%" (
-    %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logasyslog.vcproj
-    %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logaxml.vcproj
+    %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logasyslog.vcproj /out %LOGFILE%
+    %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logaxml.vcproj /out %LOGFILE%
    ) ELSE (
     IF "%%~nxS"=="%COSEU%" (
-     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project coseulib.vcproj
+     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project coseulib.vcproj /out %LOGFILE%
     ) ELSE (
      IF "%%~nxS"=="%LOGAPGM%" (
-      %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logadll.vcproj
+      %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logadll.vcproj /out %LOGFILE%
      ) ELSE (
       IF "%%~nxS"=="%FORSRV%" (
        FOR %%P IN (repes*.vcproj%) DO (
         @echo Solution: %%S
         @echo Project:  %%P
-        %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project %%P
+        %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project %%P /out %LOGFILE%
        )
       ) ELSE (
        IF "%%~nxS"=="%PROZSRV%" (
-        %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project repva.vcproj
+        %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project repva.vcproj /out %LOGFILE%
        ) ELSE (
         IF "%%~nxS"=="%ETAT%" (
-	     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project etat.vcproj
+	     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project etat.vcproj /out %LOGFILE%
 	    ) ELSE (
-	     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG%
+	     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /out %LOGFILE%
 	    )
        )
       )
