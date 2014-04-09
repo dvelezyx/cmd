@@ -97,6 +97,9 @@ FOR %%S IN (%SOLUTIONS%) DO (
     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project logaxml.vcproj /out %LOGFILE%
    ) ELSE (
     IF "%%~nxS"=="%COSEU%" (
+     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project l2dbi001.vcproj /out %LOGFILE%
+     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project l2ddc001.vcproj /out %LOGFILE%
+     %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project l2run001.vcproj /out %LOGFILE%
      %DEVENV% %%~nxS /%BUILDMODE% %CONFIG% /project coseulib.vcproj /out %LOGFILE%
     ) ELSE (
      IF "%%~nxS"=="%LOGAPGM%" (
